@@ -66,7 +66,7 @@ const MainPage: React.FC = () => (
                 ← Back to Home
               </Link>
               <div>
-                <h1 className="text-xl lg:text-3xl font-bold text-gray-900">Forou Mailer</h1>
+                <h1 className="text-xl lg:text-3xl font-bold text-gray-900">LETTERLY</h1>
                 <p className="text-sm lg:text-base text-gray-600 mt-1">Send HTML emails with attachments</p>
               </div>
             </div>

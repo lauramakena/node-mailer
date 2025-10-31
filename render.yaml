@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: forou-mailer-backend
+    env: node
+    buildCommand: npm run server:build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CORS_ORIGIN
+        value: https://mailer.forou.tech
+      - key: GEMINI_API_KEY
+        value: AIzaSyC2VqYT_7azz7wxbujbXTtJW84mhja8DiQ
+      - key: MPESA_CONSUMER_KEY
+        value: your_mpesa_consumer_key
+      - key: MPESA_CONSUMER_SECRET
+        value: your_mpesa_consumer_secret
+      - key: MPESA_SHORTCODE
+        value: 174379
+      - key: MPESA_PASSKEY
+        value: your_mpesa_passkey
+      - key: BASE_URL
+        value: https://your-app-url.com

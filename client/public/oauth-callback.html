@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Callback - Forou Mailer</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        h2 {
+            margin: 0 0 15px 0;
+            color: #1f2937;
+        }
+        p {
+            margin: 0 0 20px 0;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+        .success {
+            color: #059669;
+        }
+        .error {
+            color: #dc2626;
+        }
+        .spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="loading">
+            <div class="spinner"></div>
+            <h2>Processing OAuth...</h2>
+            <p>Please wait while we complete your authentication.</p>
+        </div>
+        
+        <div id="success" style="display: none;">
+            <h2 class="success">✅ Authentication Successful!</h2>
+            <p>Redirecting you back to Forou Mailer...</p>
+            <div class="spinner" style="margin: 20px auto;"></div>
+        </div>
+        
+        <div id="error" style="display: none;">
+            <h2 class="error">❌ Authentication Failed</h2>
+            <p id="error-message">An error occurred during authentication.</p>
+            <button onclick="goBack()" style="
+                background: #dc2626;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 6px;
+                cursor: pointer;
+                margin-top: 15px;
+            ">Go Back</button>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            const returnUrl = sessionStorage.getItem('oauth_return_url') || '/';
+            sessionStorage.removeItem('oauth_return_url');
+            window.location.href = returnUrl;
+        }
+
+        // Get the authorization code from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+
+        if (error) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error-message').textContent = `Error: ${error}`;
+        } else if (code) {
+            // Send the code to the backend
+            fetch(`https://node-mailer-owuv.onrender.com/api/oauth/callback?code=${code}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Store tokens and user info in localStorage
+                        localStorage.setItem('oauth_tokens', JSON.stringify(data.tokens));
+                        localStorage.setItem('oauth_user_info', JSON.stringify(data.userInfo));
+                        
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('success').style.display = 'block';
+                        
+                        // Redirect back to the main app after a short delay
+                        setTimeout(() => {
+                            const returnUrl = sessionStorage.getItem('oauth_return_url') || '/';
+                            sessionStorage.removeItem('oauth_return_url');
+                            window.location.href = returnUrl;
+                        }, 2000);
+                    } else {
+                        throw new Error(data.message || 'Authentication failed');
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('error').style.display = 'block';
+                    document.getElementById('error-message').textContent = `Error: ${error.message}`;
+                });
+        } else {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('error').style.display = 'block';
+            document.getElementById('error-message').textContent = 'No authorization code received';
+        }
+    </script>
+</body>
+</html>

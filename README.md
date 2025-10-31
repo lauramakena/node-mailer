@@ -1,4 +1,4 @@
-# Letterly
+# Forou Mailer
 
 A full-stack email sending application built with React (frontend) and TypeScript/Node.js (backend) using Nodemailer for sending HTML emails with attachments. Powered by letterly LM.
 
